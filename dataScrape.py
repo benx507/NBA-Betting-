@@ -47,7 +47,7 @@ def create_df(year, csv='games.csv'):
     # for team in TEAM_ABBREVIATIONS + [nets_abbr, cha_abbr, pels_abbr]:
     team = 'UTA'
     sched = schedule.Schedule(team, year = year)
-    for game in tqdm(sched):
+    for game in tqdm(sched[:30]):
         
         box_score_index = game.boxscore_index
         if box_score_index in game_id:
@@ -57,11 +57,26 @@ def create_df(year, csv='games.csv'):
         game_data.append(box_score_df)
 
     year_data = pd.concat(game_data, axis=0)
+    year_data['date'] = pd.to_datetime(year_data['date'], infer_datetime_format=True)
+    year_data = year_data.sort_values('date', ascending=True)
+
+    winner_cols= year_data[["winner", "winning_abbr"]]
+
+    n_back = [5]
+    last_n_dfs = []
+    for n in n_back:
+        last_n = year_data.drop(['date'], axis=1)\
+                                      .rolling(n, min_periods=1).mean()
+        last_n_dfs.append(last_n)
+    
+    frames = [last_n_dfs[0], winner_cols]
+    res = pd.concat(frames, axis= 1)
+
     csv = Path(csv)
     if not csv.exists():
-        year_data.to_csv(str(csv), mode='w+', header=True)
+        res.to_csv(str(csv), mode='w+', header=True)
     else:
-        year_data.to_csv(str(csv), mode='a', header=False)
+        res.to_csv(str(csv), mode='a', header=False)
     game_data = []
 
 
