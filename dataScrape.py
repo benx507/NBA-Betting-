@@ -47,7 +47,7 @@ def create_df(year, csv='games.csv'):
     # for team in TEAM_ABBREVIATIONS + [nets_abbr, cha_abbr, pels_abbr]:
     team = 'UTA'
     sched = schedule.Schedule(team, year = year)
-    for game in tqdm(sched[:30]):
+    for game in tqdm(sched):
         
         box_score_index = game.boxscore_index
         if box_score_index in game_id:
