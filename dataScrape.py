@@ -44,40 +44,39 @@ def create_df(year, csv='games.csv'):
     cha_abbr = 'CHA' if year < 2015 else 'CHO'
     pels_abbr = 'NOH' if year < 2014 else 'NOP'
     #we can run this loop when we want to fill out all the teams, right now, I am just doing Utah 2018 season as a test
-    # for team in TEAM_ABBREVIATIONS + [nets_abbr, cha_abbr, pels_abbr]:
-    team = 'UTA'
-    sched = schedule.Schedule(team, year = year)
-    for game in tqdm(sched):
+    for team in tqdm(TEAM_ABBREVIATIONS + [nets_abbr, cha_abbr, pels_abbr]):
+        sched = schedule.Schedule(team, year = year)
+        for game in tqdm(sched):
+            
+            box_score_index = game.boxscore_index
+            if box_score_index in game_id:
+                continue
+            game_id.append(box_score_index)
+            box_score_df = game.boxscore.dataframe
+            game_data.append(box_score_df)
+
+        year_data = pd.concat(game_data, axis=0)
+        year_data['date'] = pd.to_datetime(year_data['date'], infer_datetime_format=True)
+        year_data = year_data.sort_values('date', ascending=True)
+
+        winner_cols= year_data[["winner", "winning_abbr"]]
+
+        n_back = [5]
+        last_n_dfs = []
+        for n in n_back:
+            last_n = year_data.drop(['date'], axis=1)\
+                                        .rolling(n, min_periods=1).mean()
+            last_n_dfs.append(last_n)
         
-        box_score_index = game.boxscore_index
-        if box_score_index in game_id:
-            continue
-        game_id.append(box_score_index)
-        box_score_df = game.boxscore.dataframe
-        game_data.append(box_score_df)
+        frames = [last_n_dfs[0], winner_cols]
+        res = pd.concat(frames, axis= 1)
 
-    year_data = pd.concat(game_data, axis=0)
-    year_data['date'] = pd.to_datetime(year_data['date'], infer_datetime_format=True)
-    year_data = year_data.sort_values('date', ascending=True)
-
-    winner_cols= year_data[["winner", "winning_abbr"]]
-
-    n_back = [5]
-    last_n_dfs = []
-    for n in n_back:
-        last_n = year_data.drop(['date'], axis=1)\
-                                      .rolling(n, min_periods=1).mean()
-        last_n_dfs.append(last_n)
-    
-    frames = [last_n_dfs[0], winner_cols]
-    res = pd.concat(frames, axis= 1)
-
-    csv = Path(csv)
-    if not csv.exists():
-        res.to_csv(str(csv), mode='w+', header=True)
-    else:
-        res.to_csv(str(csv), mode='a', header=False)
-    game_data = []
+        csv = Path(csv)
+        if not csv.exists():
+            res.to_csv(str(csv), mode='w+', header=True)
+        else:
+            res.to_csv(str(csv), mode='a', header=False)
+        game_data = []
 
 
-create_df(2018)
+create_df(2018,csv='2018_last5.csv')
