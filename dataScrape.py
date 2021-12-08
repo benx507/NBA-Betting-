@@ -53,6 +53,9 @@ def create_df(year, csv='games.csv'):
                 continue
             game_id.append(box_score_index)
             box_score_df = game.boxscore.dataframe
+            box_score_df = box_score_df.drop(['home_free_throw_percentage',\
+                'home_three_point_field_goal_percentage'], axis=1)
+
             game_data.append(box_score_df)
 
         year_data = pd.concat(game_data, axis=0)
@@ -79,4 +82,4 @@ def create_df(year, csv='games.csv'):
         game_data = []
 
 
-create_df(2018,csv='2018_last5.csv')
+create_df(2018,csv='2018_last5_fixed.csv')
