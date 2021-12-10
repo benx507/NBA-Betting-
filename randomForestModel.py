@@ -16,7 +16,8 @@ from sklearn.ensemble import RandomForestClassifier
 
 import sys
 
-data_path = "2018_last5_fixed.csv"
+data_path = "2019_last10.csv"
+data_path = "20182019last5.csv"
 
 def load_data(data_csv):
         """
@@ -57,3 +58,24 @@ print(search.best_params_)
 
 best_model = search.best_estimator_
 print(f"best model score on test set: {best_model.score(X_test,y_test)}")
+#print(best_model.predict_proba(X_test[0:10]))
+#print(best_model.predict(X_test[0:10]))
+#print(y_test[0:10])
+
+probs = best_model.predict_proba(X_test)
+predicts = best_model.predict(X_test)
+count = 0
+sum = 0
+indices = []
+for i in range(len(predicts)):
+    threshold = 0.1
+    if probs[i][0] <= 0.5 - threshold or probs[i][0] >= 0.5 + threshold:
+        sum = sum+1
+        indices.append(i)
+        if predicts[i] == y_test[i]:
+            count = count+1
+
+#print(probs[indices])
+#print(predicts[indices])
+#print(y_test[indices])
+print(f"threshold accuracy: {count/sum}")

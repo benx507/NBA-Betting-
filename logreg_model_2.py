@@ -16,6 +16,7 @@ from sklearn.model_selection import KFold
 import sys
 
 data_path = "2018_last5_fixed.csv"
+data_path = "20182019last5.csv"
 
 def gen_pipeline(use_pca=True, pca_components=10, scale_data=True):
     pipeline_components = []

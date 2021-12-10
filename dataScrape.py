@@ -64,7 +64,7 @@ def create_df(year, csv='games.csv'):
 
         winner_cols= year_data[["winner", "winning_abbr"]]
 
-        n_back = [5]
+        n_back = [10]
         last_n_dfs = []
         for n in n_back:
             last_n = year_data.drop(['date'], axis=1)\
@@ -82,4 +82,4 @@ def create_df(year, csv='games.csv'):
         game_data = []
 
 
-create_df(2019,csv='2019_last5_fixed.csv')
+create_df(2019,csv='2018_last10.csv')
