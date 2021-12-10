@@ -82,4 +82,4 @@ def create_df(year, csv='games.csv'):
         game_data = []
 
 
-create_df(2018,csv='2018_last5_fixed.csv')
+create_df(2019,csv='2019_last5_fixed.csv')
