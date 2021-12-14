@@ -23,6 +23,20 @@ def stripAwayVector(v):
     pace = [100.0]
     return np.concatenate([a,b,c,pace])
 
+def stripVector(v,home):
+    if home:
+        v = v[37:]
+        return v[:len(v)-1]
+    else:
+        v = v[:37]
+        a = v[:13]
+        b = v[14:26]
+        c = v[27:]
+        return np.concatenate([a,b,c])
+
+def padVector(v,home):
+    return
+
 def getTeamData(team, date, home):
     game_id = []
     game_data = []
@@ -31,6 +45,8 @@ def getTeamData(team, date, home):
     for game in tqdm(sched):
             game_date = pd.to_datetime(game.date)
             if game_date < today_date:
+                location = game.location
+                opponent = game.opponent_abbr
                 box_score_index = game.boxscore_index
                 if box_score_index in game_id:
                     continue
@@ -45,13 +61,13 @@ def getTeamData(team, date, home):
                 break
 
     season_data = pd.concat(game_data, axis=0)
-    print(f"season data length:{len(season_data)}")
+    #print(f"season data length:{len(season_data)}")
     season_data['date'] = pd.to_datetime(season_data['date'], infer_datetime_format=True)
     year_data = season_data.sort_values('date', ascending=True)
 
     winner_cols= year_data[["winner", "winning_abbr"]]
 
-    n_back = [10]
+    n_back = [5]
     features = None
     for n in n_back:
         last_n = year_data.drop(['date'], axis=1)\
@@ -64,9 +80,9 @@ def getTeamData(team, date, home):
             features = np.append(features,data.to_numpy())
 
     if home:
-        features = padHomeVector(features[37:])
+        features = features[37:]
     else:
-        features = stripAwayVector(features[:37])
+        features = features[:37]
  
     return features
 
@@ -78,8 +94,9 @@ def getInputVector(team1,team2,date,home):
     else:
         return np.concatenate([feats2,feats1])
     
-# unsplit = getTeamData('GSW','10/27/21',1)
-# print(f"lenght unsplit:{len(unsplit)}")
+#unsplit = getTeamData('GSW','10/27/21',0)
+#print(unsplit)
+#print(f"lenght unsplit:{len(unsplit)}")
 
 # homesplit = unsplit[37:]
 # awaysplit = unsplit[:37]
@@ -95,5 +112,5 @@ def getInputVector(team1,team2,date,home):
 # print(awaysplit1)
 # print(len(awaysplit1))
 
-test = getInputVector("GSW","PHI","10/25/21",1)
-print(test)
+#test = getInputVector("GSW","PHI","10/25/21",1)
+#print(test)
